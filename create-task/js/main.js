@@ -16,7 +16,7 @@ function shuffle(array) {
 
   return array;
 }
-function cardCreator(arr) {
+async function cardCreator(arr) {
   DOMSelectors.cardContainer.innerHTML = "";
   arr.forEach((i) => {
     const card = document.createElement("div");
@@ -28,18 +28,35 @@ function cardCreator(arr) {
       `;
     DOMSelectors.cardContainer.appendChild(card);
     const answerContainer = document.querySelector(".answer-container");
-
-    const choicesArray = Object.values(i.choiceContainer).filter(Boolean); // undefined is a falsy value, which would be filtered out through boolean
-    console.log(choicesArray);
+    const corrAnswer = i.correctAnswer;
+    const choicesArray = Object.values(i.choiceContainer).filter(Boolean); // undefined is a falsy value, which would be filtered. out through boolean -- removes undefineds if there are only 3 or 2 answer choices
     shuffle(choicesArray);
-    for (i = 0; i < choicesArray.length; i++) {
-      console.log(i);
+    for (let i = 0; i < choicesArray.length; i++) {
       const button = document.createElement("button");
       button.id = `response${i}`;
       button.classList = "answerButton";
       button.innerHTML = `
       <p class="text">${choicesArray[i]}</p>`;
+      button.disabled = true;
       answerContainer.appendChild(button);
+      setTimeout(function () {
+        button.disabled = false;
+      }, 5000);
+    }
+    const buttonClickable = document.querySelectorAll(".answerButton");
+    for (let x = 0; x < buttonClickable.length; x++) {
+      var score = Number(DOMSelectors.score.innerHTML);
+      buttonClickable[x].addEventListener("click", function (event) {
+        event.preventDefault();
+        if (buttonClickable[x].textContent.trim() == corrAnswer) {
+          score += 100;
+          DOMSelectors.score.innerHTML = `${score}`;
+        } else {
+          score -= 100;
+          DOMSelectors.score.innerHTML = `${score}`;
+        }
+        createArr();
+      });
     }
   });
 }
