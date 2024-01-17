@@ -41,7 +41,7 @@ async function cardCreator(arr) {
       answerContainer.appendChild(button);
       setTimeout(function () {
         button.disabled = false;
-      }, 5000);
+      }, 6000);
     }
     const buttonClickable = document.querySelectorAll(".answerButton");
     for (let x = 0; x < buttonClickable.length; x++) {
@@ -55,7 +55,13 @@ async function cardCreator(arr) {
           score -= 100;
           DOMSelectors.score.innerHTML = `${score}`;
         }
-        createArr();
+        buttonClickable.forEach((btn) => {
+          btn.disabled = true;
+        });
+        DOMSelectors.answerTeller.innerHTML = `correct answer: ${corrAnswer}`;
+        setTimeout(function () {
+          createArr();
+        }, 1000);
       });
     }
   });
@@ -66,6 +72,7 @@ async function createArr() {
     const data = await response.json();
     console.log("response code: " + data.response_code);
     const cluebaseAPI = data.results;
+    DOMSelectors.answerTeller.innerHTML = "";
     const cluebaseArr = cluebaseAPI.map((arr) => ({
       question: arr.question,
       choiceContainer: {
