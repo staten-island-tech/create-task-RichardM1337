@@ -90,6 +90,7 @@ async function createArr() {
     }
   } catch (error) {
     console.log("uhoh");
+    DOMSelectors.heading.innerHTML = "error has occured";
   }
 }
 createArr();
