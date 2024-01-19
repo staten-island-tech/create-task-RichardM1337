@@ -17,83 +17,91 @@ function shuffle(array) {
   return array;
 }
 async function cardCreator(arr) {
-  DOMSelectors.cardContainer.innerHTML = "";
+  DOMSelectors.cardContainer.innerHTML = ""; // clear the container that holds the card
   arr.forEach((i) => {
-    const card = document.createElement("div");
-    card.classList.add("card");
+    // for the api array
+    const card = document.createElement("div"); // create a card
+    card.classList.add("card"); // and add "card" to its class list
     card.innerHTML = `
       <h1 class="question-heading">${i.question}</h1>
       <div class="answer-container">
       </div>
-      `;
-    DOMSelectors.cardContainer.appendChild(card);
-    const answerContainer = document.querySelector(".answer-container");
-    const corrAnswer = i.correctAnswer;
-    const choicesArray = Object.values(i.choiceContainer).filter(Boolean); // undefined is a falsy value, which would be filtered. out through boolean -- removes undefineds if there are only 3 or 2 answer choices
-    shuffle(choicesArray);
+      `; // inside the card should  be the question and the container of answers
+    DOMSelectors.cardContainer.appendChild(card); // add the card to the cardContainer already in the html
+    const answerContainer = document.querySelector(".answer-container"); // call the answer-container created inside the card
+    const corrAnswer = i.correctAnswer; // set variable corrAnswer to the array's correct answer
+    const choicesArray = Object.values(i.choiceContainer).filter(Boolean); // undefined is a falsy value, which would be filtered. out through boolean -- removes undefineds if there are only 3 or 2 answer choices -- the array should be the value of answers in the container
+    shuffle(choicesArray); // shuffle using Fisher-Yates algorithm
     for (let i = 0; i < choicesArray.length; i++) {
-      const button = document.createElement("button");
-      button.id = `response${i}`;
-      button.classList = "answerButton";
+      // iterate through choicesArray
+      const button = document.createElement("button"); // create button element
+      button.id = `response${i}`; // where its id is the response number -- from the iteration
+      button.classList = "answerButton"; // its classlist should have answer button
       button.innerHTML = `
-      <p class="text">${choicesArray[i]}</p>`;
-      button.disabled = true;
-      answerContainer.appendChild(button);
+      <p class="text">${choicesArray[i]}</p>`; // and its HTML should have the answers, iterated to create buttons for the nuber of answers
+      button.disabled = true; // disable it for now
+      answerContainer.appendChild(button); // add it to the answer container
       setTimeout(function () {
         button.disabled = false;
-      }, 6000);
+      }, 6000); // turn on the button 6 seconds later -- this is bypassing the API request limit of once every 5 seconds
     }
-    const buttonClickable = document.querySelectorAll(".answerButton");
+    const buttonClickable = document.querySelectorAll(".answerButton"); // call the answerbuttons in an array
     for (let x = 0; x < buttonClickable.length; x++) {
-      var score = Number(DOMSelectors.score.innerHTML);
+      // iterate through the amount of buttons there are
+      var score = Number(DOMSelectors.score.innerHTML); // give a variable to the score (intially 0)
       buttonClickable[x].addEventListener("click", function (event) {
-        event.preventDefault();
+        // every button should listen for click and
+        event.preventDefault(); // don't reload
         if (buttonClickable[x].textContent.trim() == corrAnswer) {
-          score += 100;
-          DOMSelectors.score.innerHTML = `${score}`;
+          // check, without whitespaces, if that's the correct answqer
+          score += 100; // add 100 to the score
+          DOMSelectors.score.innerHTML = `${score}`; // set the HTML score variable to the score given
         } else {
-          score -= 100;
+          // if wrong
+          score -= 100; // subtract 100 points
           DOMSelectors.score.innerHTML = `${score}`;
         }
         buttonClickable.forEach((btn) => {
-          btn.disabled = true;
+          // for each button
+          btn.disabled = true; // disable the button after it was clicked
         });
-        DOMSelectors.answerTeller.innerHTML = `correct answer: ${corrAnswer}`;
+        DOMSelectors.answerTeller.innerHTML = `correct answer: ${corrAnswer}`; // tell the user the correct answer
         setTimeout(function () {
-          createArr();
+          createArr(); // give them time to read the correct answer and call another card after a second
         }, 1000);
       });
     }
   });
 }
 async function createArr() {
+  // createArr function is asynced to wait for API call
   try {
-    const response = await fetch(API);
-    const data = await response.json();
-    console.log("response code: " + data.response_code);
-    const cluebaseAPI = data.results;
-    DOMSelectors.answerTeller.innerHTML = "";
+    const response = await fetch(API); // wait to fetch api
+    const data = await response.json(); // wait to fetch api call to json
+    console.log("response code: " + data.response_code); // console.log reponse code for dev use
+    const cluebaseAPI = data.results; // set results to array
+    DOMSelectors.answerTeller.innerHTML = ""; // clear answerTeller html
     const cluebaseArr = cluebaseAPI.map((arr) => ({
-      question: arr.question,
+      question: arr.question, // question = API question
       choiceContainer: {
-        response1: arr.incorrect_answers[0],
+        response1: arr.incorrect_answers[0], // responses = incorrect answers in array
         response2: arr.incorrect_answers[1],
         response3: arr.incorrect_answers[2],
-        response4: arr.correct_answer,
+        response4: arr.correct_answer, // correct answer
       },
-      correctAnswer: arr.correct_answer,
+      correctAnswer: arr.correct_answer, // also correct answer for checking purposes
     }));
 
-    cardCreator(cluebaseArr);
+    cardCreator(cluebaseArr); // create card
     if (data.response_code != 0) {
-      throw new Error(data.response_code);
+      throw new Error(data.response_code); // throws error from response code
     }
   } catch (error) {
-    console.log("uhoh");
-    DOMSelectors.heading.innerHTML = "error has occured";
+    console.log(error); // tell dev error has occured by printing error
+    DOMSelectors.heading.innerHTML = `${error}`; // print error to user
   }
 }
-createArr();
+createArr(); // create array
 
 // https://www.sitepoint.com/simple-javascript-quiz/
 
