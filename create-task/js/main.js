@@ -1,25 +1,68 @@
-/* emmetapp, animate on scroll */
 import { DOMSelectors } from "./DOM";
 const API = "https://opentdb.com/api.php?amount=1&type=multiple";
 function shuffle(array) {
+  // parameter = array, more specifically array of questions
   // this is also known as the Fisher-Yates shuffle
-  let arrLength = array.length,
+  let arrLength = array.length, // create variables t, i, and arrLength where arrLength is the parameter array's length
     t,
     i;
   while (arrLength) {
     // checks if array length has not been completely depleted
     i = Math.floor(Math.random() * arrLength--); // takes a random value from 1 to array length -1 (in this case, 3)
-    t = array[arrLength]; // t is the arrLength indice inside the array
+    t = array[arrLength]; // t is the arrLength indice inside the array -- aka the last entry
     array[arrLength] = array[i]; // the indice of arr length in array is equal to the indice of the random value given
     array[i] = t; // the indice of the random value is now the indice of the arrlength, basically switching them.
-  }
+  } // loops until arrLength depletes, from the "arrLength--"
 
   return array;
 }
+async function buttonCreator(arr) {
+  const answerContainer = document.querySelector(".answer-container"); // call the answer-container created inside the large card
+  for (let i = 0; i < arr.length; i++) {
+    // iterate through choicesArray
+    const button = document.createElement("button"); // create button element
+    button.id = `response${i}`; // where its id is the response number -- from the iteration
+    button.classList = "answerButton"; // its classlist should have answer button
+    button.innerHTML = `
+    <p class="text">${arr[i]}</p>`; // and its HTML should have the answers, iterated to create buttons for the nuber of answers
+    button.disabled = true; // disable it for now
+    answerContainer.appendChild(button); // add it to the answer container
+    setTimeout(function () {
+      button.disabled = false;
+    }, 6000); // turn on the button 6 seconds later -- this is bypassing the API request limit of once every 5 seconds
+  }
+}
+async function buttonListener(button, score, answer) {
+  for (let x = 0; x < button.length; x++) {
+    // iterate through the amount of buttons there are
+    button[x].addEventListener("click", function (event) {
+      // every button should listen for click and
+      event.preventDefault(); // don't reload
+      if (button[x].textContent.trim() == answer) {
+        // check, without whitespaces, if that's the correct answqer
+        score += 100; // add 100 to the score
+        DOMSelectors.score.innerHTML = `${score}`; // set the HTML score variable to the score given
+      } else {
+        // if wrong
+        score -= 100; // subtract 100 points
+        DOMSelectors.score.innerHTML = `${score}`;
+      }
+      button.forEach((btn) => {
+        // for each button
+        btn.disabled = true; // disable the button after it was clicked
+      });
+      DOMSelectors.answerTeller.innerHTML = `correct answer: ${answer}`; // tell the user the correct answer
+      setTimeout(function () {
+        createArr(); // give them time to read the correct answer and call another card after a second
+      }, 1000);
+    });
+  }
+}
 async function cardCreator(arr) {
+  // parameter = any array, more specifically the one that will be called in api
   DOMSelectors.cardContainer.innerHTML = ""; // clear the container that holds the card
   arr.forEach((i) => {
-    // for the api array
+    // iterate thru the api array
     const card = document.createElement("div"); // create a card
     card.classList.add("card"); // and add "card" to its class list
     card.innerHTML = `
@@ -28,51 +71,16 @@ async function cardCreator(arr) {
       </div>
       `; // inside the card should  be the question and the container of answers
     DOMSelectors.cardContainer.appendChild(card); // add the card to the cardContainer already in the html
-    const answerContainer = document.querySelector(".answer-container"); // call the answer-container created inside the card
     const corrAnswer = i.correctAnswer; // set variable corrAnswer to the array's correct answer
     const choicesArray = Object.values(i.choiceContainer).filter(Boolean); // undefined is a falsy value, which would be filtered. out through boolean -- removes undefineds if there are only 3 or 2 answer choices -- the array should be the value of answers in the container
     shuffle(choicesArray); // shuffle using Fisher-Yates algorithm
-    for (let i = 0; i < choicesArray.length; i++) {
-      // iterate through choicesArray
-      const button = document.createElement("button"); // create button element
-      button.id = `response${i}`; // where its id is the response number -- from the iteration
-      button.classList = "answerButton"; // its classlist should have answer button
-      button.innerHTML = `
-      <p class="text">${choicesArray[i]}</p>`; // and its HTML should have the answers, iterated to create buttons for the nuber of answers
-      button.disabled = true; // disable it for now
-      answerContainer.appendChild(button); // add it to the answer container
-      setTimeout(function () {
-        button.disabled = false;
-      }, 6000); // turn on the button 6 seconds later -- this is bypassing the API request limit of once every 5 seconds
-    }
+    buttonCreator(choicesArray);
     const buttonClickable = document.querySelectorAll(".answerButton"); // call the answerbuttons in an array
-    for (let x = 0; x < buttonClickable.length; x++) {
-      // iterate through the amount of buttons there are
-      var score = Number(DOMSelectors.score.innerHTML); // give a variable to the score (intially 0)
-      buttonClickable[x].addEventListener("click", function (event) {
-        // every button should listen for click and
-        event.preventDefault(); // don't reload
-        if (buttonClickable[x].textContent.trim() == corrAnswer) {
-          // check, without whitespaces, if that's the correct answqer
-          score += 100; // add 100 to the score
-          DOMSelectors.score.innerHTML = `${score}`; // set the HTML score variable to the score given
-        } else {
-          // if wrong
-          score -= 100; // subtract 100 points
-          DOMSelectors.score.innerHTML = `${score}`;
-        }
-        buttonClickable.forEach((btn) => {
-          // for each button
-          btn.disabled = true; // disable the button after it was clicked
-        });
-        DOMSelectors.answerTeller.innerHTML = `correct answer: ${corrAnswer}`; // tell the user the correct answer
-        setTimeout(function () {
-          createArr(); // give them time to read the correct answer and call another card after a second
-        }, 1000);
-      });
-    }
+    const score = Number(DOMSelectors.score.innerHTML); // give a variable to the score (intially 0)
+    buttonListener(buttonClickable, score, corrAnswer);
   });
 }
+
 async function createArr() {
   // createArr function is asynced to wait for API call
   try {
@@ -137,3 +145,4 @@ const buttonClickable = document.querySelectorAll(".answerButton");
       }
     }
     */
+/* emmetapp, animate on scroll */
