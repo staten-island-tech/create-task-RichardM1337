@@ -1,6 +1,7 @@
 import { DOMSelectors } from "./DOM";
 const API = "https://opentdb.com/api.php?amount=1&type=multiple";
 function shuffle(array) {
+  // Fisher-Yates algorithm from w3schools.com
   let arrLength = array.length,
     t,
     i;
