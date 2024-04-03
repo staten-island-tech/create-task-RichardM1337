@@ -1,6 +1,6 @@
 import { DOMSelectors } from "./DOM";
 const API = "https://opentdb.com/api.php?amount=1&type=multiple";
-/* function shuffle(array) {
+function shuffle(array) {
   // parameter = array, more specifically array of questions
   // this is also known as the Fisher-Yates shuffle
   let arrLength = array.length, // create variables t, i, and arrLength where arrLength is the parameter array's length
@@ -14,15 +14,6 @@ const API = "https://opentdb.com/api.php?amount=1&type=multiple";
     array[i] = t; // the indice of the random value is now the indice of the arrlength, basically switching them.
   } // loops until arrLength depletes, from the "arrLength--"
 
-  return array;
-} */
-function shuffle(array) {
-  let index = array.length;
-  while (index != 0) {
-    let randIndex = Math.floor(Math.random() * index);
-    index--;
-    [array[index], array[randIndex]] = [array[randIndex], array[index]];
-  }
   return array;
 }
 async function buttonCreator(arr) {
