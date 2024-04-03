@@ -1,17 +1,12 @@
 import { DOMSelectors } from "./DOM";
 const API = "https://opentdb.com/api.php?amount=1&type=multiple";
 function shuffle(array) {
-  let arrLength = array.length,
-    t,
-    i;
-  while (arrLength) {
-    i = Math.floor(Math.random() * arrLength--);
-    t = array[arrLength];
-    array[arrLength] = array[i];
-    array[i] = t;
+  let index = array.length;
+  while (arrLength != 0) {
+    let randIndex = Math.floor(Math.random() * index);
+    index--;
+    [array[index], array[randIndex]] = [array[randIndex], array[index]];
   }
-
-  return array;
 }
 async function buttonCreator(arr) {
   const answerContainer = document.querySelector(".answer-container");
