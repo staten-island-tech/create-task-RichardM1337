@@ -2,7 +2,7 @@ import { DOMSelectors } from "./DOM";
 const API = "https://opentdb.com/api.php?amount=1&type=multiple";
 function shuffle(array) {
   let index = array.length;
-  while (arrLength != 0) {
+  while (index != 0) {
     let randIndex = Math.floor(Math.random() * index);
     index--;
     [array[index], array[randIndex]] = [array[randIndex], array[index]];
